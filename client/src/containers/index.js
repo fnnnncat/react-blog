@@ -50,9 +50,21 @@ class Index extends Component{
     
         return (
             <div>
-                
+                <div className="articleMain">
                 <ul className = "articleList"> { articleTmp.length ? articleTmp : "暂无搜索结果" } </ul>
-            </div>
+                <div className="paging"></div>
+                </div>
+                <div>
+                    <h2>Popular Article</h2>
+                </div>
+                <div>
+                    <h2>Article Of Essays</h2>
+                </div>
+                <div>
+                     <h2>Announcement</h2> 
+                </div>
+                </div>
+        
         )
     }
 

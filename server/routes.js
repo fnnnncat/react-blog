@@ -50,7 +50,66 @@ module.exports = function(ctx) {
         next()
 
     })
+    /* 
+    *popularArticle
+    */
+    server.get('/articlePopular',(req,res,next)=>{
+        let query = req.query || {}
+        // find todos and convert to array (with optional query, skip and limit)
+        collection.find(query).skip(0).limit(5).sort({pv:-1}).toArray()
+            .then(docs => res.send(200, docs))
+            .catch(err => res.send(500, err))
 
+        next()
+    })
+   /* 
+    *search
+    */
+    server.get('/search',(req,res,next)=>{
+        let query = req.query || {}
+        let searchParam=req.query.searchParam
+        var pattern = new RegExp(searchParam, "i");
+        // find todos and convert to array (with optional query, skip and limit)
+        collection.find({"title": pattern}).toArray()
+            .then(docs => res.send(200, docs))
+            .catch(err => res.send(500, err))
+
+        next()
+    })
+    /* 
+     *hot of tags
+     */
+    server.get('/artcileHot',(req,res,next)=>{
+        let query =req.query || {}
+        collection.aggregate(([{$group : {_id : "$label", num_tutorial : {$sum : 1}}}]),function( err, data ) {
+             if ( err )
+             throw err
+             res.send(data)
+            })
+
+    next()
+    })
+     /* 
+     *article of essays
+     */
+    server.get('/artcileEssays',(req,res,next)=>{
+        let query =req.query || {}
+        collection.aggregate(([
+
+            {$group: {
+                _id: {"$substr":["$creat_time",0,7]},
+                count: {$sum: 1}
+                }
+            },
+            {$sort: {"_id": 1}}
+        ]),function(err,data){
+            if(err)
+             throw err
+             res.send(data)
+        })
+
+    next()
+    })
     /**
      * Update
      */

@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { fetchPostsIfNeeded } from '../actions'
+import { fetchPostsIfNeeded, fetchPostsPopularIfNeeded ,fetchPostsSearchIfNeeded,fetchPostsEassaysIfNeeded,fetchPostsTagIfNeeded} from '../actions'
 import { selectSubreddit } from '../actions/index'
 import Header from '../components/header'
 import Footer from '../components/footer'
 
 
-console.log(Header)
 const ArticleItem = ({ data }) => {
 
     return <li>
@@ -19,10 +18,43 @@ const ArticleItem = ({ data }) => {
         </div>
     </li>
 }
+const ArticlePopularItem = ({ data }) => {
+    return <li><i className="iconfont">&#xe622;</i>
+        <span>
+        {data.title}>
+        </span>
+        <span>
+        {data.pv}
+        </span>
+    </li>
+}
+const ArticleTagItem = ({ data}) => {
+    return <li><i className="iconfont">&#xe622;</i>
+        <span>
+        {data._id}>
+        </span>
+        <span>
+        {data.num_tutorial}
+        </span>
+    </li>
+}
+const ArticleEassaysItem = ({ data }) => {
+    return <li><i className="iconfont">&#xe622;</i>
+        <span>
+        {data._id}>
+        </span>
+        <span>
+        {data.count}
+        </span>
+    </li>
+}
 class App extends Component {
     static proTypes = {
         selectedSubreddit: PropTypes.string.isRequired,
         posts: PropTypes.array.isRequired,
+        postsPopular: PropTypes.array.postsPopular,
+        postsTag:PropTypes.array.postsTag,
+        postsEassays:PropTypes.array.postsEassays,
         isFetching: PropTypes.bool.isRequired,
         lastUpdated: PropTypes.number,
         dispatch: PropTypes.func.isRequired
@@ -34,6 +66,9 @@ class App extends Component {
     componentDidMount() {
         const { dispatch, selectedSubreddit } = this.props
         dispatch(fetchPostsIfNeeded(selectedSubreddit))
+        dispatch(fetchPostsPopularIfNeeded(selectedSubreddit))
+        dispatch(fetchPostsEassaysIfNeeded(selectedSubreddit))
+        dispatch(fetchPostsTagIfNeeded(selectedSubreddit))
         console.log(this.props)
     }
 
@@ -41,26 +76,55 @@ class App extends Component {
         if (nextProps.selectedSubreddit !== this.props.selectedSubreddit) {
             const { dispatch, selectedSubreddit } = nextProps
             dispatch(fetchPostsIfNeeded(selectedSubreddit))
-            console.log(this.props)
+            dispatch(fetchPostsPopularIfNeeded(selectedSubreddit))
+            dispatch(fetchPostsEassaysIfNeeded(selectedSubreddit))
+            dispatch(fetchPostsTagIfNeeded(selectedSubreddit))
+            
         }
     }
 
     render() {
-        let articleTmp = []
+
+        let articleTmp = [],
+            popularTmp=[],
+            tagTmp=[],
+            eassaysTmp=[]
+        console.log(this.props) 
         let data = this.props.posts
+        let dataPopular = this.props.postsPopular
         for (let i = 0; i < data.length; i++) {
-            console.log(data[i])
             articleTmp.push(<ArticleItem key={i} data={data[i]} />)
+        }
+        for (let i = 0; i <this.props.postsPopular.length; i++) {
+            popularTmp.push(<ArticlePopularItem key={i} data={this.props.postsPopular[i]} />)
+        }
+        for (let i = 0; i < this.props.postsTag.length; i++) {
+            tagTmp.push(<ArticleTagItem key={i} data={this.props.postsTag[i]} />)
+        }
+        for (let i = 0; i < this.props.postsEassays.length; i++) {
+            eassaysTmp.push(<ArticleEassaysItem key={i} data={this.props.postsEassays[i]} />)
         }
 
         return (
             <div>
-                <Header/>
-                <div>
-
+                <Header dispatch={this.props.dispatch}/>
+                <div className="articleMain">
                     <ul className="articleList"> {articleTmp.length ? articleTmp : "暂无搜索结果"} </ul>
+                    <div className="paging"></div>
                 </div>
-               <Footer/>
+                <div>
+                    <h2>Popular Article</h2>
+                    <ul>{popularTmp}</ul>
+                </div>
+                <div>
+                    <h2>Article Of Essays</h2>
+                    <ul>{tagTmp}</ul>
+                </div>
+                <div>
+                    <h2>Announcement</h2>
+                    <ul>{eassaysTmp}</ul>
+                </div>
+                <Footer />
             </div>
         )
     }
@@ -69,17 +133,27 @@ class App extends Component {
 const mapStateToProps = state => {
     const { selectedSubreddit, postsBySubreddit } = state
     const {
-    isFetching,
+        isFetching,
         lastUpdated,
-        items: posts
-  } = postsBySubreddit[selectedSubreddit] || {
+        items: posts,
+        popularitems: postsPopular,
+        tagitems:postsTag,
+        eassaysitems:postsEassays
+
+      } = postsBySubreddit|| {
             isFetching: true,
-            items: []
+            items: [],
+            popularitems: [],
+            tagitems:[],
+            eassaysitems:[]
         }
 
     return {
         selectedSubreddit,
         posts,
+        postsPopular,
+        postsTag,
+        postsEassays,
         isFetching,
         lastUpdated
     }

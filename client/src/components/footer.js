@@ -6,7 +6,7 @@ class Footer extends Component{
     render(){
         return (
         <div className="footer">
-            Footer
+            © 2018 - fnncat个人博客 - 京 ICP 备 ****** 号 Powered by nodeJs & react
         </div>
         )
     }
